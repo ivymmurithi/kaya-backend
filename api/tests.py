@@ -1,4 +1,3 @@
-from unicodedata import name
 from django.test import TestCase
 from rest_framework.test import APIClient
 from api.models import Account
@@ -73,6 +72,12 @@ class APITestCase(TestCase):
         self.account1.refresh_from_db()
         assert self.account1.balance == pre_update_balance  
         assert self.account2.balance == pre_update_target_balance
+
+        update_data.pop("target_id")
+
+        res = self.client.put(f"/api/update/balance/{self.account1.id}", data=update_data, format="json")
+
+        assert res.status_code == 400
     
     def test_list_accounts(self):
         res = self.client.get("/api/")

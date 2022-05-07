@@ -1,8 +1,11 @@
-from importlib.metadata import requires
-from typing_extensions import Required
 from rest_framework import serializers
 
 class BalanceUpdateSerializer(serializers.Serializer):
-    balance = serializers.FloatField()
+    amount = serializers.FloatField()
     action = serializers.ChoiceField(choices=['DEPOSIT', 'WITHDRAW', 'TRANSFER'])
-    target = serializers.CharField(required=False, max_length=255)
+    target_id = serializers.CharField(required=False, max_length=255)
+
+class AccountSerializer(serializers.Serializer):
+    id = serializers.CharField(max_length=255)
+    username = serializers.CharField(max_length=255)
+    balance = serializers.FloatField()
