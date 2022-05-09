@@ -1,3 +1,5 @@
+from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework.test import APIClient
 from api.models import Account
@@ -87,3 +89,19 @@ class APITestCase(TestCase):
         account_ids = [self.account1.id, self.account2.id]
         for id in account_ids:
             assert str(id) in returned_ids
+
+    def test_list_transactions(self):
+        self.account1.balance = 2000000000000.0
+        self.account1.save()
+        update_data = {
+            "amount": 120000000.0,
+            "action": "TRANSFER",
+            "target_id": str(self.account2.id),
+        }
+        pre_update_balance = self.account1.balance
+
+        self.client.put(f"/api/update/balance/{self.account1.id}", data=update_data, format="json")
+
+        res = self.client.get(f"/api/transactions/")
+
+        assert res.json()["transactions"] == [f"TRANSFER:{self.account1.username}:{self.account2.username}:120000000.0"]

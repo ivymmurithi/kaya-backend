@@ -1,5 +1,5 @@
 from api.serializers import AccountSerializer, BalanceUpdateSerializer
-from api.models import Account
+from api.models import Account, Transaction
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -31,14 +31,32 @@ def update_balance(request, account_id):
             target.balance += update_data.data['amount']
             account.save()
             target.save()
+            Transaction.objects.create(
+                action=update_data.data['action'],
+                source=account.username,
+                target=target.username,
+                amount=update_data.data['amount']
+            )
     if update_data.data['action'] == 'DEPOSIT':
         account.balance += update_data.data['amount']
         account.save()
+        Transaction.objects.create(
+            action=update_data.data['action'],
+            source=account.username,
+            amount=update_data.data['amount']
+        )
     if update_data.data['action'] == 'WITHDRAW':
         if account.balance >= update_data.data['amount']: 
             account.balance -= update_data.data['amount']
             account.save()
+            Transaction.objects.create(
+                action=update_data.data['action'],
+                source=account.username,
+                amount=update_data.data['amount']
+            )
+    
     return Response(data={"done": f"account balance synced"}, content_type="application/json")
+
 
 @api_view(['GET'])
 def list_accounts(request):
@@ -46,3 +64,10 @@ def list_accounts(request):
     accounts_data = AccountSerializer(instance=accounts, many=True)
     return Response(accounts_data.data, content_type="application/json")
 
+
+@api_view(['GET'])
+def get_transactions(request):
+    transactions = Transaction.objects.all()
+    transaction_strs = [str(transaction) for transaction in transactions]
+
+    return Response(data={"transactions": transaction_strs}, content_type="application/json")
