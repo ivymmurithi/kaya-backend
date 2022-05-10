@@ -1,0 +1,1 @@
+web: gunicorn kaya_challenge_backend.wsgi --log-file -
