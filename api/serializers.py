@@ -9,3 +9,6 @@ class AccountSerializer(serializers.Serializer):
     id = serializers.CharField(max_length=255)
     username = serializers.CharField(max_length=255)
     balance = serializers.FloatField()
+
+class GetTransactions(serializers.Serializer):
+    transactions = serializers.ListField()

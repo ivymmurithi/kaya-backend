@@ -1,4 +1,4 @@
-from api.serializers import AccountSerializer, BalanceUpdateSerializer
+from api.serializers import AccountSerializer, BalanceUpdateSerializer, GetTransactions
 from api.models import Account, Transaction
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -66,7 +66,7 @@ def list_accounts(request):
     accounts_data = AccountSerializer(instance=accounts, many=True)
     return Response(accounts_data.data, content_type="application/json")
 
-@swagger_auto_schema(method='get')
+@swagger_auto_schema(method='get', responses={200: GetTransactions()})
 @api_view(['GET'])
 def get_transactions(request):
     transactions = Transaction.objects.all()
