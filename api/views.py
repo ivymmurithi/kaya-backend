@@ -2,6 +2,7 @@ from api.serializers import AccountSerializer, BalanceUpdateSerializer
 from api.models import Account, Transaction
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
 
 def get_account(account_id):
     try:
@@ -9,6 +10,7 @@ def get_account(account_id):
     except Account.DoesNotExist:
         return None
 
+@swagger_auto_schema(method='put', request_body=BalanceUpdateSerializer, responses={200: AccountSerializer(many=True)})
 @api_view(['PUT'])
 def update_balance(request, account_id):
     update_data = BalanceUpdateSerializer(data=request.data)
@@ -57,14 +59,14 @@ def update_balance(request, account_id):
     
     return Response(data={"done": f"account balance synced"}, content_type="application/json")
 
-
+@swagger_auto_schema(method='get', responses={200: AccountSerializer(many=True)})
 @api_view(['GET'])
 def list_accounts(request):
     accounts = Account.objects.all()
     accounts_data = AccountSerializer(instance=accounts, many=True)
     return Response(accounts_data.data, content_type="application/json")
 
-
+@swagger_auto_schema(method='get')
 @api_view(['GET'])
 def get_transactions(request):
     transactions = Transaction.objects.all()
